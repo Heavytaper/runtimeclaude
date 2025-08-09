@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software 3.0 | Runtime-Programmable Applications</title>
+    <meta name="description" content="The future of software development. Applications that write themselves at runtime using Claude Code SDK.">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --secondary: #3B82F6;
+            --accent: #10B981;
+            --danger: #EF4444;
+            --dark: #0F172A;
+            --light: #F8FAFC;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 5px;
+        }
+        
+        /* Gradient Backgrounds */
+        .gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-mesh {
+            background: radial-gradient(at 20% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+                        radial-gradient(at 80% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                        radial-gradient(at 40% 40%, rgba(16, 185, 129, 0.2) 0%, transparent 50%),
+                        var(--dark);
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Icon Animations */
+        .icon-float {
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .icon-pulse {
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        /* Glow Effects */
+        .glow-primary {
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+        
+        .glow-secondary {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+        }
+        
+        .glow-accent {
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+        }
+        
+        /* Text Gradients */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #10B981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Code Block Styling */
+        .code-container {
+            position: relative;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .code-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+        }
+        
+        .code-container::after {
+            content: '● ● ●';
+            position: absolute;
+            top: 12px;
+            left: 1rem;
+            color: #ef4444;
+            font-size: 12px;
+            letter-spacing: 4px;
+        }
+        
+        .code-content {
+            margin-top: 20px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Animated Underline */
+        .animated-underline {
+            position: relative;
+            text-decoration: none;
+        }
+        
+        .animated-underline::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+        
+        .animated-underline:hover::after {
+            width: 100%;
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+        
+        /* Card Hover Effects */
+        .card-hover {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent, rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card-hover:hover::before {
+            opacity: 1;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Terminal Animation */
+        .terminal-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: var(--accent);
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Particle Container */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* 3D Container */
+        #architecture-3d {
+            width: 100%;
+            height: 500px;
+            cursor: grab;
+        }
+        
+        #architecture-3d:active {
+            cursor: grabbing;
+        }
+        
+        /* Loading Animation */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        
+        .loader::after {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid;
+            border-color: var(--primary) transparent;
+        }
+        
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Morphing Shapes */
+        .morph-shape {
+            animation: morph 8s ease-in-out infinite;
+        }
+        
+        @keyframes morph {
+            0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+        }
+        
+        /* Progress Bar */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+        
+        /* Custom Icon Styles */
+        .custom-icon {
+            width: 48px;
+            height: 48px;
+            fill: currentColor;
+        }
+        
+        .icon-gradient {
+            fill: url(#gradient-primary);
+        }
+        
+        /* Small Loader */
+        .loader-small {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            animation: rotation 1s linear infinite;
+        }
+        
+        .loader-small::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid;
+            border-color: var(--primary) transparent;
+        }
+        
+        /* Counter animations */
+        #learning-cycles, #pattern-count, #skills-promoted {
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        /* Typewriter effect */
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typewriter 2s steps(40, end) forwards;
+        }
+        
+        /* Pipeline flow animation */
+        @keyframes flowRight {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+        
+        .pipeline-flow {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pipeline-flow::after {
+            content: '→';
+            position: absolute;
+            animation: flowRight 3s linear infinite;
+            color: var(--accent);
+        }
+        
+        /* Fortress animations */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse-slow 4s ease-in-out infinite;
+        }
+        
+        .fortress-attack {
+            animation: attack-bounce 4s ease-in-out infinite;
+        }
+        
+        @keyframes attack-bounce {
+            0%, 100% { opacity: 0; transform: translate(0, 0); }
+            20% { opacity: 1; transform: translate(20px, -10px); }
+            25% { opacity: 0; transform: translate(40px, -20px); }
+        }
+        
+        .fortress-shield {
+            transition: all 0.3s ease;
+        }
+        
+        .fortress-shield:hover {
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+        }
+        
+        .security-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        .security-detail.show {
+            max-height: 500px;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div id="progress-bar" style="width: 0%"></div>
+    
+    <!-- Particle Background -->
+    <div id="particles-js"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full glass z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <svg class="w-10 h-10" viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="10" y="10" width="30" height="30" fill="url(#logo-gradient)" />
+                    <rect x="10" y="50" width="30" height="30" fill="url(#logo-gradient)" opacity="0.7" />
+                    <rect x="50" y="10" width="30" height="30" fill="url(#logo-gradient)" opacity="0.7" />
+                    <rect x="50" y="50" width="30" height="30" fill="url(#logo-gradient)" opacity="0.4" />
+                </svg>
+                <span class="font-bold text-xl">Software 3.0</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#hero" class="animated-underline hover:text-purple-400 transition">Home</a>
+                <a href="#paradigm" class="animated-underline hover:text-purple-400 transition">Evolution</a>
+                <a href="#architecture" class="animated-underline hover:text-purple-400 transition">Architecture</a>
+                <a href="#demo" class="animated-underline hover:text-purple-400 transition">Live Demo</a>
+                <a href="#capabilities" class="animated-underline hover:text-purple-400 transition">Capabilities</a>
+            </div>
+            <a href="Whitepaper.md" target="_blank" class="btn-primary flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Read Whitepaper
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section id="hero" class="min-h-screen flex items-center justify-center relative">
+        <div class="absolute inset-0 gradient-mesh opacity-50"></div>
+        
+        <!-- Animated Background Shapes -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute top-20 left-20 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl opacity-20 morph-shape"></div>
+            <div class="absolute bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl opacity-20 morph-shape" style="animation-delay: 4s;"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-500 rounded-full filter blur-3xl opacity-20 morph-shape" style="animation-delay: 2s;"></div>
+        </div>
+        
+        <div class="relative z-10 text-center px-4 max-w-6xl mx-auto">
+            <h1 class="text-6xl md:text-8xl font-black mb-6 gradient-text hero-title">
+                Software 3.0
+            </h1>
+            <p class="text-2xl md:text-3xl mb-4 text-gray-300 hero-subtitle">
+                It will know exactly what you mean<br>and do exactly what you want
+            </p>
+            
+            <!-- Business Conversation Demo -->
+            <div class="max-w-5xl mx-auto my-12">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Conversation Side -->
+                    <div class="glass-dark p-6 rounded-xl text-left">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span class="text-sm text-gray-400">Live Conversation</span>
+                        </div>
+                        <div id="conversation-demo" class="space-y-4">
+                            <!-- Will be populated by animation -->
+                        </div>
+                    </div>
+                    
+                    <!-- Instant Creation Side -->
+                    <div class="glass-dark p-6 rounded-xl">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                            <span class="text-sm text-gray-400">Instant Creation</span>
+                        </div>
+                        <div id="creation-demo" class="relative h-80">
+                            <!-- Will be populated by animation -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-500">
+                                <div class="text-center">
+                                    <svg class="w-16 h-16 mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p>Your dashboard appears here instantly</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-xl mb-8 text-gray-400 max-w-3xl mx-auto">
+                No coding. No waiting. Just <span class="text-purple-400 font-semibold">tell it what you need</span> 
+                and watch it happen instantly.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="scrollToSection('demo')" class="btn-primary">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Watch Live Demo
+                    </span>
+                </button>
+                <button onclick="scrollToSection('architecture')" class="glass hover:bg-white/10 px-8 py-4 rounded-full font-bold text-lg transition">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Explore Architecture
+                    </span>
+                </button>
+            </div>
+            
+            <!-- Scroll Indicator -->
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2">
+                <div class="animate-bounce">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Paradigm Evolution Section -->
+    <section id="paradigm" class="py-20 px-4 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-bold mb-4 gradient-text">
+                    The Evolution of Software
+                </h2>
+                <p class="text-xl text-gray-400">Three paradigm shifts that changed everything</p>
+            </div>
+            
+            <!-- Interactive Timeline -->
+            <div class="relative">
+                <!-- Timeline Line -->
+                <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-purple-500 via-blue-500 to-green-500"></div>
+                
+                <!-- Software 1.0 -->
+                <div class="timeline-item flex items-center mb-20" data-aos="fade-right">
+                    <div class="w-full md:w-1/2 text-right pr-8">
+                        <div class="glass p-6 rounded-lg card-hover">
+                            <div class="flex justify-end mb-4">
+                                <svg class="w-12 h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-purple-400 mb-2">Software 1.0</h3>
+                            <p class="text-gray-400 mb-2">1950s - Present</p>
+                            <p class="mb-4">Human developers write every line. Features frozen at compile time.</p>
+                            <pre class="language-javascript"><code>function calculateTax(income) {
+  // Static logic, never changes
+  return income * 0.3;
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2">
+                        <div class="w-6 h-6 bg-purple-500 rounded-full glow-primary"></div>
+                    </div>
+                    <div class="w-full md:w-1/2 pl-8"></div>
+                </div>
+                
+                <!-- Software 2.0 -->
+                <div class="timeline-item flex items-center mb-20" data-aos="fade-left">
+                    <div class="w-full md:w-1/2 pr-8"></div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full glow-secondary"></div>
+                    </div>
+                    <div class="w-full md:w-1/2 pl-8">
+                        <div class="glass p-6 rounded-lg card-hover">
+                            <div class="flex mb-4">
+                                <svg class="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-blue-400 mb-2">Software 2.0</h3>
+                            <p class="text-gray-400 mb-2">2012 - Present</p>
+                            <p class="mb-4">Neural networks learn from data. Models static after training.</p>
+                            <pre class="language-python"><code>model = tf.load_model('model.h5')
+prediction = model.predict(input)
+# Fixed weights, no runtime learning</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Software 3.0 -->
+                <div class="timeline-item flex items-center" data-aos="fade-right">
+                    <div class="w-full md:w-1/2 text-right pr-8">
+                        <div class="glass p-6 rounded-lg card-hover glow-accent">
+                            <div class="flex justify-end mb-4">
+                                <svg class="w-12 h-12 text-green-400 icon-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-green-400 mb-2">Software 3.0</h3>
+                            <p class="text-gray-400 mb-2">2024 - Future</p>
+                            <p class="mb-4">Applications generate features at runtime. Continuous evolution.</p>
+                            <pre class="language-javascript"><code>// Using Claude Code SDK at runtime
+const result = await query(
+  prompt: userIntent,
+  options: { output_format: 'stream-json' }
+);</code></pre>
+                        </div>
+                    </div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2">
+                        <div class="w-6 h-6 bg-green-500 rounded-full glow-accent icon-pulse"></div>
+                    </div>
+                    <div class="w-full md:w-1/2 pl-8"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-20 px-4 bg-gradient-to-b from-transparent via-purple-900/10 to-transparent">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-bold mb-4 gradient-text">
+                    Five-Layer Architecture
+                </h2>
+                <p class="text-xl text-gray-400">Powered by Claude Code SDK</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 3D Visualization -->
+                <div class="flex items-center justify-center">
+                    <div id="architecture-3d" class="w-full h-[500px]"></div>
+                </div>
+                
+                <!-- Layer Details -->
+                <div class="space-y-4">
+                    <!-- Layer 5: Evolution Engine -->
+                    <div class="layer-card glass p-4 rounded-xl card-hover cursor-pointer" x-data="{ open: false }" @click="open = !open; startLayerAnimation(5, open)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-purple-400">Layer 5: Evolution Engine</h3>
+                                    <p class="text-xs text-gray-400">Automatic skill synthesis & optimization</p>
+                                </div>
+                            </div>
+                            <svg class="w-5 h-5 transform transition flex-shrink-0" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        
+                        <div x-show="open" x-transition class="mt-4">
+                            <!-- Breakthrough Visualization (Now Inside) -->
+                            <div class="p-4 bg-gradient-to-r from-purple-600/10 to-pink-600/10 rounded-lg mb-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-semibold text-purple-300 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                        </svg>
+                                        The Breakthrough
+                                    </span>
+                                    <span class="text-xs text-green-400 animate-pulse">LEARNING NOW</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-3 text-center">
+                                    <div class="bg-black/30 rounded p-2">
+                                        <div class="text-xl font-bold text-purple-400 layer5-pattern-count">89</div>
+                                        <div class="text-xs text-gray-500">Patterns Found</div>
+                                    </div>
+                                    <div class="bg-black/30 rounded p-2">
+                                        <div class="text-xl font-bold text-pink-400">67%</div>
+                                        <div class="text-xs text-gray-500">Faster After 10 Uses</div>
+                                    </div>
+                                    <div class="bg-black/30 rounded p-2">
+                                        <div class="text-xl font-bold text-purple-400 layer5-skills-promoted">34</div>
+                                        <div class="text-xs text-gray-500">Skills Promoted</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-xs text-gray-400">
+                                    <span class="text-green-400">→</span> Ephemeral code automatically evolves into optimized permanent capabilities
+                                </div>
+                            </div>
+                            
+                            <!-- Details -->
+                            <div class="bg-black/30 rounded-lg p-3">
+                                <p class="text-sm text-gray-300 mb-3">Every successful execution makes the software permanently smarter:</p>
+                                <div class="flex items-center gap-2 text-xs">
+                                    <div class="px-2 py-1 bg-red-600/20 text-red-400 rounded">Ephemeral</div>
+                                    <span>→</span>
+                                    <div class="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded">Validated</div>
+                                    <span>→</span>
+                                    <div class="px-2 py-1 bg-green-600/20 text-green-400 rounded">Production</div>
+                                </div>
+                                <pre class="language-bash mt-3"><code># Pattern evolves after 3+ successful uses
+$ claude "Optimize repeated pattern" \
+  --allowedTools "Write" \
+  --output-format json</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Layer 4: Adaptive UI -->
+                    <div class="layer-card glass p-4 rounded-xl card-hover cursor-pointer" x-data="{ open: false }" @click="open = !open; startLayerAnimation(4, open)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-blue-400">Layer 4: Adaptive UI</h3>
+                                    <p class="text-xs text-gray-400">Just-in-time component generation</p>
+                                </div>
+                            </div>
+                            <svg class="w-5 h-5 transform transition flex-shrink-0" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        
+                        <div x-show="open" x-transition class="mt-4">
+                            <!-- Breakthrough Visualization (Now Inside) -->
+                            <div class="p-4 bg-gradient-to-r from-blue-600/10 to-cyan-600/10 rounded-lg mb-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-semibold text-blue-300 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                        </svg>
+                                        The Breakthrough
+                                    </span>
+                                    <span class="text-xs text-yellow-400">UI DOESN'T EXIST UNTIL NOW</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-20 h-12 bg-gradient-to-r from-blue-600/20 to-transparent rounded layer4-ui-box animate-pulse"></div>
+                                        <span class="text-xs text-gray-400">→</span>
+                                        <div class="flex-1 bg-black/30 rounded p-2">
+                                            <div class="text-xs text-blue-400">Discovering data shape...</div>
+                                            <div class="text-xs text-gray-500">Reading user preferences...</div>
+                                        </div>
+                                        <span class="text-xs text-gray-400">→</span>
+                                        <div class="w-20 h-12 bg-gradient-to-r from-green-600/30 to-blue-600/30 rounded flex items-center justify-center">
+                                            <span class="text-xs layer4-ui-result">✨ UI</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <span class="text-blue-400">→</span> Every user sees a completely different interface
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Details -->
+                            <div class="bg-black/30 rounded-lg p-3">
+                                <p class="text-sm text-gray-300 mb-3">Components are generated at the moment of need:</p>
+                                <div class="grid grid-cols-2 gap-2 mb-3">
+                                    <div class="bg-blue-600/10 rounded p-2 text-center">
+                                        <div class="text-xs text-blue-400 mb-1">CEO Request</div>
+                                        <div class="text-xs text-gray-500">→ Executive Dashboard</div>
+                                    </div>
+                                    <div class="bg-cyan-600/10 rounded p-2 text-center">
+                                        <div class="text-xs text-cyan-400 mb-1">Analyst Request</div>
+                                        <div class="text-xs text-gray-500">→ Detailed Tables</div>
+                                    </div>
+                                </div>
+                                <pre class="language-bash"><code># Generate UI based on data shape
+$ claude "Create dashboard for {data}" \
+  --resume user-session \
+  --output-format stream-json</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Layer 3: Runtime Engine -->
+                    <div class="layer-card glass p-4 rounded-xl card-hover cursor-pointer" x-data="{ open: false }" @click="open = !open; startLayerAnimation(3, open)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-green-400">Layer 3: Runtime Engine</h3>
+                                    <p class="text-xs text-gray-400">Three-stage execution pipeline</p>
+                                </div>
+                            </div>
+                            <svg class="w-5 h-5 transform transition flex-shrink-0" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        
+                        <div x-show="open" x-transition class="mt-4">
+                            <!-- Breakthrough Visualization (Now Inside) -->
+                            <div class="p-4 bg-gradient-to-r from-green-600/10 to-emerald-600/10 rounded-lg mb-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-semibold text-green-300 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                        The Breakthrough
+                                    </span>
+                                    <span class="text-xs text-green-400">CLAUDE CODE AS RUNTIME</span>
+                                </div>
+                                <div class="flex items-center justify-between gap-2 text-xs pipeline-flow">
+                                    <div class="flex-1 bg-red-600/20 rounded p-2 text-center" id="stage-ephemeral">
+                                        <div class="text-red-400 font-semibold">/tmp/ephemeral</div>
+                                        <div class="text-gray-500">Quick experiments</div>
+                                        <div class="mt-1" id="ephemeral-counter">0 files</div>
+                                    </div>
+                                    <span>→</span>
+                                    <div class="flex-1 bg-yellow-600/20 rounded p-2 text-center" id="stage-validated">
+                                        <div class="text-yellow-400 font-semibold">/validated</div>
+                                        <div class="text-gray-500">Testing & refining</div>
+                                        <div class="mt-1" id="validated-counter">0 files</div>
+                                    </div>
+                                    <span>→</span>
+                                    <div class="flex-1 bg-green-600/20 rounded p-2 text-center" id="stage-production">
+                                        <div class="text-green-400 font-semibold">/production</div>
+                                        <div class="text-gray-500">Permanent MCP</div>
+                                        <div class="mt-1" id="production-counter">0 skills</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-xs text-gray-400">
+                                    <span class="text-green-400">→</span> Code that tests itself and promotes successful patterns
+                                </div>
+                            </div>
+                            
+                            <!-- Details -->
+                            <div class="bg-black/30 rounded-lg p-3">
+                                <p class="text-sm text-gray-300 mb-3">Claude Code SDK orchestrates generation + execution + validation:</p>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="flex items-center gap-1">
+                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                        <span class="text-xs text-gray-400">Streaming</span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                                        <span class="text-xs text-gray-400">Stateful</span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                                        <span class="text-xs text-gray-400">Persistent</span>
+                                    </div>
+                                </div>
+                                <pre class="language-bash"><code># Streaming execution pipeline
+$ claude "Execute: {intent}" \
+  --output-format stream-json \
+  --max-turns 10</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Layer 2: Capability Fabric -->
+                    <div class="layer-card glass p-4 rounded-xl card-hover cursor-pointer" x-data="{ open: false }" @click="open = !open; startLayerAnimation(2, open)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-yellow-400">Layer 2: Capability Fabric</h3>
+                                    <p class="text-xs text-gray-400">Self-extending MCP ecosystem</p>
+                                </div>
+                            </div>
+                            <svg class="w-5 h-5 transform transition flex-shrink-0" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        
+                        <div x-show="open" x-transition class="mt-4">
+                            <!-- Breakthrough Visualization (Now Inside) -->
+                            <div class="p-4 bg-gradient-to-r from-yellow-600/10 to-orange-600/10 rounded-lg mb-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-semibold text-yellow-300 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        The Breakthrough
+                                    </span>
+                                    <span class="text-xs text-orange-400">GENERATES OWN MCP SERVERS</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between text-xs">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-yellow-600/20 rounded flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="text-gray-400">Postgres</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-orange-600/20 rounded flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="text-gray-400">Salesforce</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-yellow-600/20 rounded flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="text-gray-400">Stripe</span>
+                                        </div>
+                                        <div class="w-8 h-8 bg-gradient-to-br from-yellow-600/30 to-orange-600/30 rounded flex items-center justify-center animate-pulse">
+                                            <span class="text-xs">+</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-black/30 rounded p-2">
+                                        <div class="text-xs text-orange-400 layer2-mcp-status">Creating new integration that never existed...</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-xs text-gray-400">
+                                    <span class="text-yellow-400">→</span> Can connect to ANY system, even ones it's never seen
+                                </div>
+                            </div>
+                            
+                            <!-- Details -->
+                            <div class="bg-black/30 rounded-lg p-3">
+                                <p class="text-sm text-gray-300 mb-3">Creates its own integrations on demand:</p>
+                                <div class="flex items-center justify-between mb-3 text-xs">
+                                    <span class="text-yellow-400">23 MCP servers</span>
+                                    <span class="text-gray-500">generated autonomously</span>
+                                </div>
+                                <pre class="language-bash"><code># Auto-generate MCP server when needed
+$ claude "Create MCP server for {system}" \
+  --allowedTools "Write,Bash" \
+  --mcp-config auto-deploy</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Layer 1: Persistence -->
+                    <div class="layer-card glass p-4 rounded-xl card-hover cursor-pointer" x-data="{ open: false }" @click="open = !open; startLayerAnimation(1, open)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-red-400">Layer 1: Persistence</h3>
+                                    <p class="text-xs text-gray-400">Self-modifying knowledge base</p>
+                                </div>
+                            </div>
+                            <svg class="w-5 h-5 transform transition flex-shrink-0" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        
+                        <div x-show="open" x-transition class="mt-4">
+                            <!-- Breakthrough Visualization (Now Inside) -->
+                            <div class="p-4 bg-gradient-to-r from-red-600/10 to-pink-600/10 rounded-lg mb-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-semibold text-red-300 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                        The Breakthrough
+                                    </span>
+                                    <span class="text-xs text-pink-400">CLAUDE.md REWRITES ITSELF</span>
+                                </div>
+                                <div class="bg-black/30 rounded p-3 font-mono text-xs">
+                                    <div class="text-gray-400"># CLAUDE.md - Living Constitution</div>
+                                    <div class="text-gray-500">Last Updated: <span class="text-red-400" id="last-update">2025-08-08 14:32:17</span></div>
+                                    <div class="text-gray-500">Learning Cycles: <span class="text-pink-400 font-bold" id="learning-cycles">1,247</span></div>
+                                    <div class="mt-2 text-green-400 layer1-claude-update" style="transition: opacity 0.5s;">
+                                        + [Auto-learned Pattern: Invoice Processing]<br/>
+                                        + Optimized workflow reduces time by 67%
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <div class="text-xs text-gray-400">
+                                        <span class="text-red-400">→</span> Knowledge base evolves with every interaction
+                                    </div>
+                                    <div class="text-xs text-green-400 animate-pulse">+1 learning</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Details -->
+                            <div class="bg-black/30 rounded-lg p-3">
+                                <p class="text-sm text-gray-300 mb-3">Tri-state memory system that never forgets:</p>
+                                <div class="grid grid-cols-3 gap-2 mb-3 text-xs">
+                                    <div class="bg-red-600/10 rounded p-2 text-center">
+                                        <div class="text-red-400">Session</div>
+                                        <div class="text-gray-500">Current context</div>
+                                    </div>
+                                    <div class="bg-pink-600/10 rounded p-2 text-center">
+                                        <div class="text-pink-400">Institutional</div>
+                                        <div class="text-gray-500">Learned patterns</div>
+                                    </div>
+                                    <div class="bg-red-600/10 rounded p-2 text-center">
+                                        <div class="text-red-400">Skills</div>
+                                        <div class="text-gray-500">Permanent code</div>
+                                    </div>
+                                </div>
+                                <pre class="language-markdown"><code>## New Learning (auto-generated)
+When user asks about "churn":
+- Check customer_analytics.py
+- Use 90-day threshold
+- Include lifetime value</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Security & Governance Section -->
+    <section id="security" class="py-20 px-4 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-red-900/5 to-transparent"></div>
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-bold mb-4">
+                    <span class="gradient-text">Fortress of Intelligence</span>
+                </h2>
+                <p class="text-xl text-gray-400">Enterprise-grade security with bounded autonomy</p>
+            </div>
+            
+            <!-- Interactive Fortress Visualization -->
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Left: Visual Fortress -->
+                <div class="relative">
+                    <div class="fortress-container relative w-full h-[500px]">
+                        <!-- Outer Shield: Permission Layer -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="fortress-shield fortress-shield-outer w-96 h-96 rounded-full border-4 border-red-500/30 bg-gradient-to-br from-red-900/10 to-transparent animate-pulse-slow">
+                                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 glass px-4 py-2 rounded-full">
+                                    <span class="text-sm font-semibold text-red-400 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                        </svg>
+                                        Permission Layer
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Middle Shield: Audit Layer -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="fortress-shield fortress-shield-middle w-72 h-72 rounded-full border-4 border-yellow-500/30 bg-gradient-to-br from-yellow-900/10 to-transparent animate-pulse-slow" style="animation-delay: 0.5s">
+                                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 glass px-4 py-2 rounded-full">
+                                    <span class="text-sm font-semibold text-yellow-400 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        Audit Layer
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Inner Shield: Sandbox Layer -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="fortress-shield fortress-shield-inner w-48 h-48 rounded-full border-4 border-green-500/30 bg-gradient-to-br from-green-900/10 to-transparent animate-pulse-slow" style="animation-delay: 1s">
+                                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 glass px-4 py-2 rounded-full">
+                                    <span class="text-sm font-semibold text-green-400 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                        </svg>
+                                        Sandbox
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Core: The Agent -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-24 h-24 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center shadow-2xl">
+                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- Attack Indicators (animated) -->
+                        <div class="fortress-attack absolute top-10 left-10 w-4 h-4 bg-red-500 rounded-full opacity-0"></div>
+                        <div class="fortress-attack absolute bottom-20 right-20 w-4 h-4 bg-red-500 rounded-full opacity-0" style="animation-delay: 1.5s"></div>
+                        <div class="fortress-attack absolute top-32 right-10 w-4 h-4 bg-red-500 rounded-full opacity-0" style="animation-delay: 3s"></div>
+                    </div>
+                </div>
+                
+                <!-- Right: Security Features -->
+                <div class="space-y-6">
+                    <!-- Bounded Autonomy -->
+                    <div class="glass p-6 rounded-xl hover:bg-white/5 transition cursor-pointer group" onclick="showSecurityDetail('bounded')">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-red-400 mb-2">Bounded Autonomy</h3>
+                                <p class="text-gray-300 mb-3">Granular control over what the agent can and cannot do</p>
+                                <div class="security-detail" id="bounded-detail">
+                                    <pre class="language-bash text-xs bg-black/50 rounded p-3 mt-3"><code>$ claude "Analyze the database" \
+  --allowedTools "Read,Grep" \
+  --disallowedTools "Write,Edit,Bash"</code></pre>
+                                    <div class="mt-3 grid grid-cols-3 gap-2 text-xs">
+                                        <div class="bg-green-600/20 text-green-400 rounded p-2 text-center">✓ Read</div>
+                                        <div class="bg-green-600/20 text-green-400 rounded p-2 text-center">✓ Query</div>
+                                        <div class="bg-red-600/20 text-red-400 rounded p-2 text-center">✗ Modify</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Local-First Security -->
+                    <div class="glass p-6 rounded-xl hover:bg-white/5 transition cursor-pointer group" onclick="showSecurityDetail('local')">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-blue-400 mb-2">Local-First Architecture</h3>
+                                <p class="text-gray-300 mb-3">Your code never leaves your machine</p>
+                                <div class="security-detail" id="local-detail">
+                                    <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mt-3">
+                                        <div class="flex items-center gap-3 mb-3">
+                                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                                            <span class="text-sm text-blue-300">All processing happens locally</span>
+                                        </div>
+                                        <div class="space-y-2 text-xs text-gray-400">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-green-400">✓</span>
+                                                <span>Source code stays on your infrastructure</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-green-400">✓</span>
+                                                <span>No indexing or storage on remote servers</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-green-400">✓</span>
+                                                <span>Compatible with air-gapped environments</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Human-in-the-Loop -->
+                    <div class="glass p-6 rounded-xl hover:bg-white/5 transition cursor-pointer group" onclick="showSecurityDetail('human')">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-green-400 mb-2">Human-in-the-Loop</h3>
+                                <p class="text-gray-300 mb-3">Critical operations require explicit approval</p>
+                                <div class="security-detail" id="human-detail">
+                                    <pre class="language-bash text-xs bg-black/50 rounded p-3 mt-3"><code>$ claude "Deploy to production" \
+  --permission-prompt-tool "mcp__security__evaluate"</code></pre>
+                                    <div class="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3 mt-3">
+                                        <div class="text-sm text-yellow-400 mb-2 flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                            </svg>
+                                            Approval Required
+                                        </div>
+                                        <div class="text-xs text-gray-400">High-risk operation detected. Awaiting human approval...</div>
+                                        <div class="flex gap-2 mt-3">
+                                            <button class="px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs">Approve</button>
+                                            <button class="px-3 py-1 bg-red-600/20 text-red-400 rounded text-xs">Deny</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Audit Trail -->
+                    <div class="glass p-6 rounded-xl hover:bg-white/5 transition cursor-pointer group" onclick="showSecurityDetail('audit')">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-yellow-400 mb-2">Complete Audit Trail</h3>
+                                <p class="text-gray-300 mb-3">Every action logged for compliance</p>
+                                <div class="security-detail" id="audit-detail">
+                                    <div class="bg-black/50 rounded-lg p-3 mt-3 font-mono text-xs">
+                                        <div class="text-gray-500 mb-1">[2025-08-09 14:32:17]</div>
+                                        <div class="text-green-400">SESSION: abc-123</div>
+                                        <div class="text-blue-400">INTENT: "Generate customer report"</div>
+                                        <div class="text-yellow-400">TOOLS: ["Read", "Query", "Generate"]</div>
+                                        <div class="text-purple-400">FILES: ["report_template.jsx"]</div>
+                                        <div class="text-gray-400">TOKENS: 4,523 | COST: $0.02</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Live Demo Section -->
+    <section id="demo" class="py-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-bold mb-4 gradient-text">
+                    The Impossible Becomes Possible
+                </h2>
+                <p class="text-xl text-gray-400">Five revolutionary capabilities that didn't exist until Software 3.0</p>
+            </div>
+            
+            <!-- Demo Selection -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button onclick="runTransformativeDemo(1)" class="demo-pill bg-gradient-to-r from-purple-600/20 to-purple-600/10 hover:from-purple-600/30 hover:to-purple-600/20 px-6 py-3 rounded-full font-semibold transition">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-purple-400 rounded-full"></span>
+                        Zero-Day Features
+                    </span>
+                </button>
+                <button onclick="runTransformativeDemo(2)" class="demo-pill bg-gradient-to-r from-blue-600/20 to-blue-600/10 hover:from-blue-600/30 hover:to-blue-600/20 px-6 py-3 rounded-full font-semibold transition">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+                        Cross-System Magic
+                    </span>
+                </button>
+                <button onclick="runTransformativeDemo(3)" class="demo-pill bg-gradient-to-r from-green-600/20 to-green-600/10 hover:from-green-600/30 hover:to-green-600/20 px-6 py-3 rounded-full font-semibold transition">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        Self-Healing
+                    </span>
+                </button>
+                <button onclick="runTransformativeDemo(4)" class="demo-pill bg-gradient-to-r from-yellow-600/20 to-yellow-600/10 hover:from-yellow-600/30 hover:to-yellow-600/20 px-6 py-3 rounded-full font-semibold transition">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                        Anticipatory Evolution
+                    </span>
+                </button>
+                <button onclick="runTransformativeDemo(5)" class="demo-pill bg-gradient-to-r from-pink-600/20 to-pink-600/10 hover:from-pink-600/30 hover:to-pink-600/20 px-6 py-3 rounded-full font-semibold transition">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-pink-400 rounded-full"></span>
+                        Infinite Personalization
+                    </span>
+                </button>
+            </div>
+            
+            <!-- Three Column Demo Display -->
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Column 1: Natural Language -->
+                <div class="glass-dark p-6 rounded-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold">1</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-purple-400">Natural Language</h3>
+                            <p class="text-sm text-gray-500">What you say</p>
+                        </div>
+                    </div>
+                    <div id="demo-input" class="space-y-4">
+                        <div class="bg-black/30 rounded-lg p-4 border border-purple-500/30">
+                            <p class="text-gray-300">Click a demo above to see the magic...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Column 2: Runtime Generation -->
+                <div class="glass-dark p-6 rounded-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold">2</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-blue-400">Runtime Generation</h3>
+                            <p class="text-sm text-gray-500">What gets created</p>
+                        </div>
+                    </div>
+                    <div id="demo-generation" class="space-y-4">
+                        <div class="bg-black/30 rounded-lg p-4 border border-blue-500/30">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <div class="loader-small"></div>
+                                <span>Waiting to generate...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Column 3: What Happens -->
+                <div class="glass-dark p-6 rounded-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold">3</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-green-400">What Happens</h3>
+                            <p class="text-sm text-gray-500">The magic you see</p>
+                        </div>
+                    </div>
+                    <div id="demo-result" class="space-y-4">
+                        <div class="bg-black/30 rounded-lg p-4 border border-green-500/30">
+                            <p class="text-gray-300">The impossible becomes reality...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Transformation Metrics -->
+            <div class="mt-12 text-center">
+                <div id="transformation-metrics" class="inline-flex gap-8 glass px-8 py-4 rounded-full opacity-0">
+                    <div>
+                        <span class="text-2xl font-bold text-purple-400" id="metric-speed">0ms</span>
+                        <span class="text-sm text-gray-500 ml-2">to create</span>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-bold text-blue-400" id="metric-connections">0</span>
+                        <span class="text-sm text-gray-500 ml-2">systems connected</span>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-bold text-green-400" id="metric-saved">$0</span>
+                        <span class="text-sm text-gray-500 ml-2">development saved</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Capabilities Section -->
+    <section id="capabilities" class="py-20 px-4 bg-gradient-to-b from-transparent via-blue-900/10 to-transparent">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-bold mb-4 gradient-text">
+                    Breakthrough Capabilities
+                </h2>
+                <p class="text-xl text-gray-400">What becomes possible with runtime programmability</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Zero-Day Features -->
+                <div class="glass p-8 rounded-xl card-hover group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-purple-400">Zero-Day Features</h3>
+                    <p class="text-gray-300 mb-4">Features that didn't exist 10 seconds ago now do. No development cycle.</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>• Instant capability generation</li>
+                        <li>• No deployment needed</li>
+                        <li>• Immediate availability</li>
+                    </ul>
+                </div>
+                
+                <!-- Infinite Personalization -->
+                <div class="glass p-8 rounded-xl card-hover group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-blue-400">Infinite Personalization</h3>
+                    <p class="text-gray-300 mb-4">Every user gets their own unique version, evolved from their patterns.</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>• Learns user preferences</li>
+                        <li>• Adapts to workflows</li>
+                        <li>• Continuous evolution</li>
+                    </ul>
+                </div>
+                
+                <!-- Cross-System Synthesis -->
+                <div class="glass p-8 rounded-xl card-hover group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-green-400">Cross-System Synthesis</h3>
+                    <p class="text-gray-300 mb-4">Connect any systems, even those never designed to work together.</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>• Universal integration</li>
+                        <li>• Automatic bridging</li>
+                        <li>• No API limitations</li>
+                    </ul>
+                </div>
+                
+                <!-- Self-Healing Software -->
+                <div class="glass p-8 rounded-xl card-hover group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-yellow-400">Self-Healing Software</h3>
+                    <p class="text-gray-300 mb-4">Detects failures and rewrites integrations automatically.</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>• Auto-fix breaking changes</li>
+                        <li>• Adapt to API updates</li>
+                        <li>• Zero downtime</li>
+                    </ul>
+                </div>
+                
+                <!-- Anticipatory Evolution -->
+                <div class="glass p-8 rounded-xl card-hover group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-pink-400">Anticipatory Evolution</h3>
+                    <p class="text-gray-300 mb-4">Proactively suggests new capabilities before you need them.</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>• Pattern recognition</li>
+                        <li>• Predictive features</li>
+                        <li>• Workflow optimization</li>
+                    </ul>
+                </div>
+                
+                <!-- Superhuman Memory -->
+                <div class="glass p-8 rounded-xl card-hover group">
+                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-indigo-400">Superhuman Memory</h3>
+                    <p class="text-gray-300 mb-4">Perfect recall of every process, pattern, and preference.</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>• Never forgets</li>
+                        <li>• Instant skill transfer</li>
+                        <li>• Compound learning</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <section class="py-20 px-4 relative">
+        <div class="absolute inset-0 gradient-mesh opacity-30"></div>
+        <div class="relative z-10 max-w-4xl mx-auto text-center">
+            <h2 class="text-5xl md:text-6xl font-bold mb-6 gradient-text">
+                The Future is Runtime
+            </h2>
+            <p class="text-xl text-gray-300 mb-8">
+                Join the revolution. Build applications that evolve with every interaction.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                <a href="https://docs.anthropic.com/claude-code" target="_blank" class="btn-primary">
+                    Start Building Now
+                </a>
+                <a href="Whitepaper.md" target="_blank" class="glass hover:bg-white/10 px-8 py-4 rounded-full font-bold text-lg transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Read Technical Whitepaper
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-8 px-4 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto text-center text-gray-500">
+            <p>© 2025 Software 3.0. Powered by Claude Code SDK from Anthropic.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Initialize particles
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: '#8b5cf6' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#8b5cf6',
+                    opacity: 0.2,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: { enable: true, mode: 'grab' },
+                    onclick: { enable: true, mode: 'push' },
+                    resize: true
+                }
+            }
+        });
+        
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // Hero animations
+        gsap.from('.hero-title', { duration: 1, y: 50, opacity: 0, delay: 0.2 });
+        gsap.from('.hero-subtitle', { duration: 1, y: 30, opacity: 0, delay: 0.4 });
+        
+        // Scroll-triggered animations
+        gsap.utils.toArray('.timeline-item').forEach((item, i) => {
+            gsap.from(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                },
+                duration: 0.8,
+                x: i % 2 === 0 ? -100 : 100,
+                opacity: 0
+            });
+        });
+        
+        // Business Conversation Animation
+        const conversations = [
+            {
+                user: "Show me which customers haven't ordered in 30 days",
+                response: "Creating customer retention dashboard...",
+                ui: createDashboardUI
+            },
+            {
+                user: "I need to track inventory across all warehouses",
+                response: "Building real-time inventory system...",
+                ui: createInventoryUI
+            },
+            {
+                user: "Set up automated invoice processing",
+                response: "Generating workflow automation...",
+                ui: createWorkflowUI
+            }
+        ];
+        
+        let convIndex = 0;
+        
+        function createDashboardUI() {
+            return `
+                <div class="bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-lg p-4">
+                    <h3 class="text-white font-bold mb-3">Customer Retention Dashboard</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-black/30 rounded p-3">
+                            <div class="text-2xl font-bold text-purple-400">47</div>
+                            <div class="text-xs text-gray-400">At Risk</div>
+                        </div>
+                        <div class="bg-black/30 rounded p-3">
+                            <div class="text-2xl font-bold text-blue-400">$124k</div>
+                            <div class="text-xs text-gray-400">Potential Loss</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">Acme Corp</span>
+                            <span class="text-xs text-orange-400">45 days</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">TechStart Inc</span>
+                            <span class="text-xs text-yellow-400">32 days</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createInventoryUI() {
+            return `
+                <div class="bg-gradient-to-br from-blue-600/20 to-green-600/20 rounded-lg p-4">
+                    <h3 class="text-white font-bold mb-3">Multi-Warehouse Inventory</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">New York</span>
+                            <div class="flex-1 mx-3 bg-black/30 rounded-full h-2">
+                                <div class="bg-green-400 h-2 rounded-full" style="width: 75%"></div>
+                            </div>
+                            <span class="text-xs text-gray-400">2,847 units</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">Los Angeles</span>
+                            <div class="flex-1 mx-3 bg-black/30 rounded-full h-2">
+                                <div class="bg-yellow-400 h-2 rounded-full" style="width: 45%"></div>
+                            </div>
+                            <span class="text-xs text-gray-400">1,523 units</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">Chicago</span>
+                            <div class="flex-1 mx-3 bg-black/30 rounded-full h-2">
+                                <div class="bg-blue-400 h-2 rounded-full" style="width: 90%"></div>
+                            </div>
+                            <span class="text-xs text-gray-400">3,421 units</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createWorkflowUI() {
+            return `
+                <div class="bg-gradient-to-br from-green-600/20 to-yellow-600/20 rounded-lg p-4">
+                    <h3 class="text-white font-bold mb-3">Invoice Processing Workflow</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-sm">Scan & Extract Data</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-bold">2</span>
+                            </div>
+                            <span class="text-sm">Validate Against Rules</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-bold">3</span>
+                            </div>
+                            <span class="text-sm">Route for Approval</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-bold">4</span>
+                            </div>
+                            <span class="text-sm">Process Payment</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function animateConversation() {
+            const convContainer = document.getElementById('conversation-demo');
+            const creationContainer = document.getElementById('creation-demo');
+            const current = conversations[convIndex];
+            
+            // Clear previous
+            convContainer.innerHTML = '';
+            creationContainer.innerHTML = `
+                <div class="absolute inset-0 flex items-center justify-center text-gray-500">
+                    <div class="text-center">
+                        <div class="loader mx-auto mb-3"></div>
+                        <p class="text-sm">Understanding your request...</p>
+                    </div>
+                </div>
+            `;
+            
+            // Show user message
+            setTimeout(() => {
+                convContainer.innerHTML = `
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-400 mb-1">You</p>
+                            <p class="text-white bg-blue-600/20 rounded-lg p-3">${current.user}</p>
+                        </div>
+                    </div>
+                `;
+            }, 500);
+            
+            // Show system response
+            setTimeout(() => {
+                convContainer.innerHTML += `
+                    <div class="flex gap-3 mt-4">
+                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-400 mb-1">Software 3.0</p>
+                            <p class="text-white bg-green-600/20 rounded-lg p-3">${current.response}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Update creation side
+                creationContainer.innerHTML = `
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="loader mx-auto mb-3"></div>
+                            <p class="text-sm text-green-400">Generating components...</p>
+                        </div>
+                    </div>
+                `;
+            }, 2000);
+            
+            // Show created UI
+            setTimeout(() => {
+                creationContainer.innerHTML = current.ui();
+                
+                // Add completion message
+                convContainer.innerHTML += `
+                    <div class="flex items-center gap-2 mt-4 text-green-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="text-sm">Created in 0.3 seconds</span>
+                    </div>
+                `;
+            }, 3500);
+            
+            // Cycle to next conversation
+            convIndex = (convIndex + 1) % conversations.length;
+            setTimeout(animateConversation, 8000);
+        }
+        
+        // Start conversation animation
+        setTimeout(animateConversation, 1000);
+        
+        // 3D Architecture Visualization
+        function init3D() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            const container = document.getElementById('architecture-3d');
+            if (!container) return;
+            
+            renderer.setSize(container.clientWidth, 500);
+            container.appendChild(renderer.domElement);
+            
+            // Create layers
+            const layers = [];
+            const colors = [0xff6b6b, 0xfeca57, 0x48dbfb, 0x0abde3, 0xee5a6f];
+            
+            for (let i = 0; i < 5; i++) {
+                const geometry = new THREE.BoxGeometry(3, 0.5, 3);
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: colors[i],
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.y = i * 1.2 - 2;
+                layers.push(cube);
+                scene.add(cube);
+            }
+            
+            // Add lighting
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(5, 5, 5);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+            
+            camera.position.z = 8;
+            camera.position.y = 1;
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                layers.forEach((layer, i) => {
+                    layer.rotation.y += 0.005 * (i + 1);
+                });
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+        }
+        
+        // Initialize 3D on load
+        window.addEventListener('load', init3D);
+        
+        // Layer animation management
+        const layerAnimations = {
+            1: null, // Layer 1 animations
+            2: null, // Layer 2 animations  
+            3: null, // Layer 3 animations
+            4: null, // Layer 4 animations
+            5: null  // Layer 5 animations
+        };
+        
+        function startLayerAnimation(layer, isOpen) {
+            // Clear any existing animation for this layer
+            if (layerAnimations[layer]) {
+                clearInterval(layerAnimations[layer].interval);
+                if (layerAnimations[layer].interval2) clearInterval(layerAnimations[layer].interval2);
+                if (layerAnimations[layer].interval3) clearInterval(layerAnimations[layer].interval3);
+                layerAnimations[layer] = null;
+            }
+            
+            // If closing, just stop animations
+            if (!isOpen) return;
+            
+            // Start layer-specific animations
+            switch(layer) {
+                case 1: // Persistence Layer
+                    // Animate CLAUDE.md updates
+                    const claudePatterns = [
+                        '+ [Auto-learned: Customer churn analysis]<br/>+ Detects patterns 89% faster',
+                        '+ [Auto-learned: Invoice processing]<br/>+ Workflow optimized by 67%',
+                        '+ [Auto-learned: Data visualization]<br/>+ UI components in 0.3s',
+                        '+ [Auto-learned: API integration]<br/>+ Connected 4 systems',
+                        '+ [Auto-learned: Error recovery]<br/>+ Self-healed 73% of issues'
+                    ];
+                    let patternIdx = 0;
+                    
+                    layerAnimations[1] = {
+                        interval: setInterval(() => {
+                            const updateEl = document.querySelector('.layer1-claude-update');
+                            if (updateEl) {
+                                updateEl.style.opacity = '0';
+                                setTimeout(() => {
+                                    updateEl.innerHTML = claudePatterns[patternIdx];
+                                    patternIdx = (patternIdx + 1) % claudePatterns.length;
+                                    updateEl.style.opacity = '1';
+                                }, 500);
+                            }
+                        }, 3000)
+                    };
+                    break;
+                    
+                case 2: // Capability Fabric Layer
+                    // Animate MCP server generation
+                    const systems = ['MongoDB', 'Twilio', 'Docker', 'GitHub', 'AWS Lambda'];
+                    let sysIdx = 0;
+                    
+                    layerAnimations[2] = {
+                        interval: setInterval(() => {
+                            const statusEl = document.querySelector('.layer2-mcp-status');
+                            if (statusEl) {
+                                statusEl.textContent = `Generating MCP server for ${systems[sysIdx]}...`;
+                                sysIdx = (sysIdx + 1) % systems.length;
+                            }
+                        }, 2500)
+                    };
+                    break;
+                    
+                case 3: // Runtime Engine Layer
+                    // Animate pipeline flow
+                    let ephemeral = 0, validated = 0, production = 0;
+                    
+                    layerAnimations[3] = {
+                        interval: setInterval(() => {
+                            const ephEl = document.getElementById('ephemeral-counter');
+                            const valEl = document.getElementById('validated-counter');
+                            const prodEl = document.getElementById('production-counter');
+                            
+                            if (ephEl && valEl && prodEl) {
+                                // Add to ephemeral
+                                ephemeral++;
+                                ephEl.textContent = ephemeral + ' files';
+                                
+                                // Move through pipeline
+                                if (ephemeral > 2) {
+                                    ephemeral--;
+                                    validated++;
+                                    ephEl.textContent = ephemeral + ' files';
+                                    valEl.textContent = validated + ' files';
+                                }
+                                
+                                if (validated > 1) {
+                                    validated--;
+                                    production++;
+                                    valEl.textContent = validated + ' files';
+                                    prodEl.textContent = production + ' skills';
+                                }
+                            }
+                        }, 2000)
+                    };
+                    break;
+                    
+                case 4: // Adaptive UI Layer
+                    // Animate UI generation
+                    const uiTypes = ['Dashboard', 'Table View', 'Graph', 'Report'];
+                    let uiIdx = 0;
+                    
+                    layerAnimations[4] = {
+                        interval: setInterval(() => {
+                            const uiEl = document.querySelector('.layer4-ui-result');
+                            if (uiEl) {
+                                uiEl.textContent = uiTypes[uiIdx];
+                                uiIdx = (uiIdx + 1) % uiTypes.length;
+                            }
+                        }, 2000)
+                    };
+                    break;
+                    
+                case 5: // Evolution Engine Layer
+                    // Animate counters
+                    layerAnimations[5] = {
+                        interval: setInterval(() => {
+                            const patternEl = document.querySelector('.layer5-pattern-count');
+                            const skillsEl = document.querySelector('.layer5-skills-promoted');
+                            
+                            if (patternEl) {
+                                const current = parseInt(patternEl.textContent);
+                                patternEl.textContent = current + 1;
+                                patternEl.style.transform = 'scale(1.1)';
+                                setTimeout(() => { patternEl.style.transform = 'scale(1)'; }, 300);
+                            }
+                            
+                            if (skillsEl) {
+                                const current = parseInt(skillsEl.textContent);
+                                skillsEl.textContent = current + 1;
+                                skillsEl.style.transform = 'scale(1.1)';
+                                setTimeout(() => { skillsEl.style.transform = 'scale(1)'; }, 300);
+                            }
+                        }, 3000)
+                    };
+                    break;
+            }
+        }
+        
+        // Make function globally available
+        window.startLayerAnimation = startLayerAnimation;
+        
+        // Animate architecture section when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Global counters (only for always-visible elements if any)
+            // Note: Layer-specific animations are now handled by startLayerAnimation()
+            
+            // Timestamp updater (always running for visible timestamps)
+            const updateTimestamp = () => {
+                const lastUpdate = document.getElementById('last-update');
+                if (lastUpdate) {
+                    const now = new Date();
+                    const formatted = now.toISOString().replace('T', ' ').slice(0, 19);
+                    lastUpdate.textContent = formatted;
+                }
+            };
+            
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+        });
+        
+        // Security Detail Toggle Function
+        function showSecurityDetail(type) {
+            const detail = document.getElementById(type + '-detail');
+            const allDetails = document.querySelectorAll('.security-detail');
+            
+            // Hide all other details
+            allDetails.forEach(d => {
+                if (d !== detail) {
+                    d.classList.remove('show');
+                }
+            });
+            
+            // Toggle the clicked detail
+            if (detail.classList.contains('show')) {
+                detail.classList.remove('show');
+            } else {
+                detail.classList.add('show');
+            }
+        }
+        
+        // Transformative Demo Function
+        function runTransformativeDemo(demoNumber) {
+            const inputEl = document.getElementById('demo-input');
+            const generationEl = document.getElementById('demo-generation');
+            const resultEl = document.getElementById('demo-result');
+            const metricsEl = document.getElementById('transformation-metrics');
+            const speedEl = document.getElementById('metric-speed');
+            const connectionsEl = document.getElementById('metric-connections');
+            const savedEl = document.getElementById('metric-saved');
+            
+            const demos = {
+                1: { // Zero-Day Feature
+                    input: `<div class="bg-purple-600/20 rounded-lg p-4 border border-purple-500/30">
+                        <p class="text-white mb-2">"Track employee sentiment from our Slack messages and alert HR if morale drops"</p>
+                        <p class="text-xs text-gray-400 mt-2">This feature doesn't exist anywhere. It will be created from scratch.</p>
+                    </div>`,
+                    generation: [
+                        '$ claude "Create Slack sentiment analyzer" --output-format stream-json',
+                        '→ Generating MCP server for Slack integration...',
+                        '→ Creating sentiment analysis algorithm...',
+                        '→ Building alert system with thresholds...',
+                        '→ Generating React dashboard components...'
+                    ],
+                    result: `<div class="space-y-4">
+                        <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-lg p-4">
+                            <h4 class="font-bold text-white mb-2">Team Sentiment Dashboard</h4>
+                            <div class="grid grid-cols-2 gap-2 mb-3">
+                                <div class="bg-black/30 rounded p-2">
+                                    <div class="text-xl font-bold text-green-400">78%</div>
+                                    <div class="text-xs text-gray-400">Positive</div>
+                                </div>
+                                <div class="bg-black/30 rounded p-2">
+                                    <div class="text-xl font-bold text-yellow-400">⚠ Alert</div>
+                                    <div class="text-xs text-gray-400">Engineering Team</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-green-400">✓ HR notified about Engineering team morale</div>
+                        </div>
+                        <div class="text-sm text-gray-400">Feature created in 0.8 seconds. Would take 6 weeks traditionally.</div>
+                    </div>`,
+                    speed: 800,
+                    connections: 3,
+                    saved: 50000
+                },
+                2: { // Cross-System Orchestration
+                    input: `<div class="bg-blue-600/20 rounded-lg p-4 border border-blue-500/30">
+                        <p class="text-white mb-2">"When a VIP customer's payment fails in Stripe, check their status in Salesforce, and if they're strategic, notify their account manager on Slack with a draft email"</p>
+                        <p class="text-xs text-gray-400 mt-2">Connecting 4 systems that were never designed to work together.</p>
+                    </div>`,
+                    generation: [
+                        '$ claude "Connect Stripe, Salesforce, and Slack" --mcp-servers all',
+                        '→ Using MCP to connect Stripe payments...',
+                        '→ Bridging to Salesforce CRM via MCP...',
+                        '→ Creating Slack notification channel...',
+                        '→ Orchestrating multi-system workflow...'
+                    ],
+                    result: `<div class="space-y-4">
+                        <div class="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-lg p-4">
+                            <h4 class="font-bold text-white mb-2">Multi-System Workflow Active</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs">1</span>
+                                    </div>
+                                    <span class="text-sm">Payment Failed: Acme Corp ($45,000)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs">2</span>
+                                    </div>
+                                    <span class="text-sm">Status: Strategic Account (Tier 1)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs">3</span>
+                                    </div>
+                                    <span class="text-sm">✓ John Smith notified on Slack</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs">4</span>
+                                    </div>
+                                    <span class="text-sm">✓ Draft email ready to send</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-400">Complex integration built in 1.2 seconds. Traditional: 3 months.</div>
+                    </div>`,
+                    speed: 1200,
+                    connections: 4,
+                    saved: 125000
+                },
+                3: { // Self-Healing
+                    input: `<div class="bg-green-600/20 rounded-lg p-4 border border-green-500/30">
+                        <p class="text-red-400 mb-2">⚠️ System Alert: "Shopify API v2023 deprecated, webhooks failing"</p>
+                        <p class="text-white">Software 3.0 detects and fixes itself automatically.</p>
+                        <p class="text-xs text-gray-400 mt-2">Zero downtime. Zero developer intervention.</p>
+                    </div>`,
+                    generation: [
+                        '$ claude "Fix broken API integration" --allowedTools "Read,Write,Edit,Bash"',
+                        '→ Detecting schema changes in API v2...',
+                        '→ Rewriting integration with new endpoints...',
+                        '→ Running automated tests...',
+                        '→ Deploying self-healed version...'
+                    ],
+                    result: `<div class="space-y-4">
+                        <div class="bg-gradient-to-r from-green-600/20 to-emerald-600/20 rounded-lg p-4">
+                            <h4 class="font-bold text-white mb-2">Self-Healing Complete</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Old API Version</span>
+                                    <span class="text-red-400 line-through">v2023</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">New API Version</span>
+                                    <span class="text-green-400">v2024 ✓</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Webhooks Status</span>
+                                    <span class="text-green-400">All Active ✓</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Downtime</span>
+                                    <span class="text-green-400 font-bold">0 seconds</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-400">Auto-fixed in 0.6 seconds. Manual fix: 2-3 days + downtime.</div>
+                    </div>`,
+                    speed: 600,
+                    connections: 2,
+                    saved: 15000
+                },
+                4: { // Anticipatory Evolution
+                    input: `<div class="bg-yellow-600/20 rounded-lg p-4 border border-yellow-500/30">
+                        <p class="text-yellow-400 mb-2">💡 System Notice: "I've noticed you export customer data every Monday at 9am"</p>
+                        <p class="text-white">"Would you like me to automate this with your preferred charts and send it to your team?"</p>
+                        <p class="text-xs text-gray-400 mt-2">Learning from patterns, suggesting improvements.</p>
+                    </div>`,
+                    generation: [
+                        '$ claude "Learn from my patterns" --continue',
+                        '→ Analyzing 3 weeks of usage data...',
+                        '→ Pattern detected: Monday reports at 9am...',
+                        '→ Creating automated workflow...',
+                        '→ Writing to CLAUDE.md for persistence...'
+                    ],
+                    result: `<div class="space-y-4">
+                        <div class="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 rounded-lg p-4">
+                            <h4 class="font-bold text-white mb-2">Automation Created</h4>
+                            <div class="bg-black/30 rounded p-3 mb-3">
+                                <div class="text-sm mb-2">📊 Weekly Customer Report</div>
+                                <div class="text-xs text-gray-400 space-y-1">
+                                    <div>• Runs every Monday 9:00 AM</div>
+                                    <div>• Includes your 3 favorite charts</div>
+                                    <div>• Sends to: Sales Team, Management</div>
+                                    <div>• Format: PDF + Interactive Dashboard</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-green-400">✓ First report scheduled for next Monday</div>
+                        </div>
+                        <div class="text-sm text-gray-400">Proactive automation in 0.5 seconds. Saves 2 hours weekly.</div>
+                    </div>`,
+                    speed: 500,
+                    connections: 3,
+                    saved: 8000
+                },
+                5: { // Infinite Personalization
+                    input: `<div class="bg-pink-600/20 rounded-lg p-4 border border-pink-500/30">
+                        <p class="text-white mb-3">Two different users say: "Show me sales performance"</p>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="bg-black/30 rounded p-2">
+                                <p class="text-pink-400 mb-1">CEO Sarah</p>
+                                <p class="text-gray-400">Prefers executive summaries</p>
+                            </div>
+                            <div class="bg-black/30 rounded p-2">
+                                <p class="text-blue-400 mb-1">Manager Tom</p>
+                                <p class="text-gray-400">Needs detailed pipelines</p>
+                            </div>
+                        </div>
+                    </div>`,
+                    generation: [
+                        '$ claude "Generate UI for CEO Sarah" --resume sarah-session',
+                        '→ Loading Sarah\'s preferences from CLAUDE.md...',
+                        '→ Generating executive dashboard view...',
+                        '---',
+                        '$ claude "Generate UI for Tom" --resume tom-session',
+                        '→ Loading Tom\'s preferences...',
+                        '→ Generating detailed analytics view...'
+                    ],
+                    result: `<div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gradient-to-r from-pink-600/20 to-purple-600/20 rounded-lg p-3">
+                                <h5 class="text-sm font-bold text-pink-400 mb-2">CEO View</h5>
+                                <div class="space-y-2">
+                                    <div class="text-2xl font-bold">$4.2M</div>
+                                    <div class="text-xs text-gray-400">Q4 Revenue</div>
+                                    <div class="text-sm text-green-400">↑ 23% vs Q3</div>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-lg p-3">
+                                <h5 class="text-sm font-bold text-blue-400 mb-2">Manager View</h5>
+                                <div class="text-xs space-y-1">
+                                    <div>• 47 deals in pipeline</div>
+                                    <div>• 12 closing this week</div>
+                                    <div>• 3 need attention</div>
+                                    <div>• Team performance: 94%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-400">Completely different UIs from same request. True personalization.</div>
+                    </div>`,
+                    speed: 700,
+                    connections: 2,
+                    saved: 20000
+                }
+            };
+            
+            const demo = demos[demoNumber];
+            if (!demo) return;
+            
+            // Reset all panels
+            inputEl.innerHTML = demo.input;
+            generationEl.innerHTML = '<div class="bg-black/30 rounded-lg p-4 border border-blue-500/30"><div class="flex items-center gap-2 text-blue-400"><div class="loader-small"></div><span>Generating...</span></div></div>';
+            resultEl.innerHTML = '<div class="bg-black/30 rounded-lg p-4 border border-green-500/30"><p class="text-gray-500">Waiting...</p></div>';
+            metricsEl.style.opacity = '0';
+            
+            // Animate generation steps
+            let stepIndex = 0;
+            const generationSteps = [];
+            
+            const stepInterval = setInterval(() => {
+                if (stepIndex < demo.generation.length) {
+                    const step = demo.generation[stepIndex];
+                    if (step === '---') {
+                        generationSteps.push('<div class="border-t border-gray-700 my-2"></div>');
+                    } else if (step.startsWith('$')) {
+                        // SDK command
+                        generationSteps.push(`<div class="font-mono text-xs ${stepIndex === 0 ? '' : 'mt-3'} bg-black/50 rounded p-2">
+                            <span class="text-green-400">$</span> <span class="text-white">${step.substring(2)}</span>
+                        </div>`);
+                    } else if (step.startsWith('→')) {
+                        // Output/action
+                        generationSteps.push(`<div class="flex items-center gap-2 text-sm mt-1">
+                            <span class="text-blue-400">→</span>
+                            <span class="text-gray-300">${step.substring(2)}</span>
+                        </div>`);
+                    } else {
+                        // Regular step
+                        generationSteps.push(`<div class="flex items-center gap-2 text-sm ${stepIndex === 0 ? '' : 'mt-2'}">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>${step}</span>
+                        </div>`);
+                    }
+                    
+                    generationEl.innerHTML = `<div class="bg-black/30 rounded-lg p-4 border border-blue-500/30">
+                        ${generationSteps.join('')}
+                    </div>`;
+                    stepIndex++;
+                } else {
+                    clearInterval(stepInterval);
+                    
+                    // Show result
+                    setTimeout(() => {
+                        resultEl.innerHTML = demo.result;
+                        
+                        // Show metrics
+                        metricsEl.style.opacity = '1';
+                        speedEl.textContent = demo.speed + 'ms';
+                        connectionsEl.textContent = demo.connections;
+                        savedEl.textContent = '$' + demo.saved.toLocaleString();
+                        
+                        // Add completion to generation
+                        generationSteps.push(`<div class="flex items-center gap-2 text-sm mt-3 text-green-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="font-semibold">Complete!</span>
+                        </div>`);
+                        generationEl.innerHTML = `<div class="bg-black/30 rounded-lg p-4 border border-green-500/30">
+                            ${generationSteps.join('')}
+                        </div>`;
+                    }, 500);
+                }
+            }, 400);
+        }
+        
+        // Remove old runAdvancedDemo function
+        // Advanced Demo Function (REMOVED - replaced with runTransformativeDemo)
+        function oldRunAdvancedDemo(type) {
+            // This function has been replaced
+        }
+        
+        // Keep existing animation functions
+        const oldDemos = {
+            dashboard: {
+                lines: [
+                        '<span class="text-gray-400"># Analyzing intent...</span>',
+                        'Intent: "Build a real-time analytics dashboard"',
+                        '',
+                        '<span class="text-yellow-400">→ Discovering available data sources...</span>',
+                        'Found: PostgreSQL, Redis, Elasticsearch',
+                        '',
+                        '<span class="text-blue-400">→ Generating dashboard components...</span>',
+                        '',
+                        '<span class="text-purple-400">// MetricsCard.tsx</span>',
+                        'const MetricsCard = ({ title, value, trend }) => {',
+                        '  const [animated, setAnimated] = useState(false);',
+                        '  ',
+                        '  useEffect(() => {',
+                        '    const timer = setTimeout(() => setAnimated(true), 100);',
+                        '    return () => clearTimeout(timer);',
+                        '  }, [value]);',
+                        '  ',
+                        '  return (',
+                        '    <div className="metric-card">',
+                        '      <h3>{title}</h3>',
+                        '      <div className={`value ${animated ? "animate" : ""}`}>',
+                        '        {value.toLocaleString()}',
+                        '      </div>',
+                        '      <TrendIndicator trend={trend} />',
+                        '    </div>',
+                        '  );',
+                        '};',
+                        '',
+                // Placeholder for old demo data
+            ]
+            }
+        };
+        
+        // Smooth scrolling
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / documentHeight) * 100;
+            document.getElementById('progress-bar').style.width = scrollPercent + '%';
+        });
+    </script>
+</body>
+</html>
